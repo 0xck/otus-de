@@ -252,7 +252,7 @@ def add_customer(client: Client, customer_id: int, phone_number: str, lifetime_v
 
     assert (result == customer_id), AssertionError(f"Result id {result} is not equal given customer id {customer_id}")
 
-    return _add_customer(client, NAMESPACE, SET, id_, phone, ltv).id
+    return result
 
 
 def get_ltv_by_id(client: Client, customer_id: int) -> Optional[int]:
