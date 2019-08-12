@@ -171,11 +171,12 @@ class LTV:
 
 
 def _add_customer(client: Client, namespace: str, set_: str,
-                  customer_id: CustomerID, phone_number: PhoneNumber, lifetime_value: LTV) -> None:
+                  customer_id: CustomerID, phone_number: PhoneNumber, lifetime_value: LTV) -> CustomerID:
     key = (namespace, set_, customer_id.id)
     bins = {"phone": phone_number.phone, "ltv": lifetime_value.ltv}
 
     client.handler.put(key, bins)
+    return customer_id
 
 
 def _get_ltv_by_id(client: Client, namespace: str, set_: str,
@@ -243,12 +244,15 @@ def get_client_settings():
     return {"hosts": hosts, "policies": {"timeout": timeout}}
 
 
-def add_customer(client: Client, customer_id: int, phone_number: str, lifetime_value: int) -> None:
+def add_customer(client: Client, customer_id: int, phone_number: str, lifetime_value: int) -> int:
     phone = PhoneNumber(phone_number, PHONE_CHECK_POLICY)
     id_ = CustomerID(customer_id)
     ltv = LTV(lifetime_value)
+    result = _add_customer(client, NAMESPACE, SET, id_, phone, ltv).id
 
-    return _add_customer(client, NAMESPACE, SET, id_, phone, ltv)
+    assert (result == customer_id), AssertionError(f"Result id {result} is not equal given customer id {customer_id}")
+
+    return _add_customer(client, NAMESPACE, SET, id_, phone, ltv).id
 
 
 def get_ltv_by_id(client: Client, customer_id: int) -> Optional[int]:
